@@ -157,6 +157,22 @@ class TestPresets(unittest.TestCase):
         self.assertEqual(f("https://media.example.com/jellyfin/"),
                          "https://media.example.com/jellyfin/web/index.html")
 
+    def test_custom_shortcut(self):
+        f = presets.build_custom
+        p = f("  Mon   Média ", "jellyfin.example.com", "https://example.com/i.png")
+        self.assertEqual(p["name"], "Mon Média")
+        self.assertEqual(p["app_id"], "my_mon_m_dia")
+        self.assertEqual(p["url"], "https://jellyfin.example.com")
+        self.assertEqual(f("NAS", "192.168.1.9:5000")["url"], "http://192.168.1.9:5000")
+        self.assertEqual(f("NAS", "http://192.168.1.9")["image"], "")
+        self.assertEqual(f("x" * 40, "https://a.b")["app_id"], "my_" + "x" * 29)
+        self.assertEqual(presets.custom_app_id("!!!"), "my_tile")
+        for args in (("", "https://a.b"), ("App", ""), ("A&B", "https://a.b"),
+                     ("App", "https://a.b", "http://a.b/i.png"),
+                     ("App", "localhost:8080")):
+            with self.assertRaises(ValueError):
+                f(*args)
+
     def test_private_host_rule(self):
         f = presets.is_private_host
         self.assertTrue(f("192.168.1.50"))

@@ -85,6 +85,38 @@ def build_server_url(server: str) -> str:
     return urlunsplit((scheme, authority, path, parsed.query, parsed.fragment))
 
 
+def custom_app_id(name: str) -> str:
+    """Stable tile id for a user shortcut: same name, same tile (reinstalling
+    replaces it). The prefix keeps it apart from the catalog's ids."""
+    slug = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    return ("my_" + slug)[:32].rstrip("_") if slug else "my_tile"
+
+
+def build_custom(name: str, url: str, image: str = "") -> dict:
+    """User shortcut -> preset-shaped dict, ready for validation."""
+    name = " ".join(name.split())
+    url = url.strip()
+    image = image.strip()
+    if not name:
+        raise ValueError("Enter a name for your shortcut.")
+    if not re.fullmatch(r"[\w \-']{1,40}", name):
+        raise ValueError("Keep the name under 40 characters, using letters, "
+                         "digits, spaces, hyphens or apostrophes.")
+    if not url:
+        raise ValueError("Enter the web address the tile should open.")
+    if "://" not in url:
+        url = ("http://" if is_private_host(url) else "https://") + url
+    host = (urlsplit(url).hostname or "").rstrip(".")
+    if host == "localhost" or host.endswith(".localhost"):
+        raise ValueError("localhost refers to the TV itself; use an address "
+                         "your TV can reach.")
+    if image and not image.startswith("https://"):
+        raise ValueError("The image must be an https:// web address: the TV "
+                         "downloads it itself.")
+    return {"name": name, "app_id": custom_app_id(name), "url": url,
+            "image": image}
+
+
 def build_stremio_url(server: str = "") -> str:
     """Build the VIDAA-optimised full Stremio TV URL.
 

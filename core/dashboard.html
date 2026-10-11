@@ -123,12 +123,16 @@
     .app-note .icon { width: 14px; height: 14px; }
     .featured .app-note { color: #b0b4a5; }
     .featured .button:disabled { background: #33372b; color: #c5c9bb; }
-    .jellyfin-head, .stremio-head { display: flex; align-items: center; gap: 12px; }
+    .jellyfin-head, .stremio-head, .custom-head { display: flex; align-items: center; gap: 12px; }
     .app-icon { width: 50px; height: 50px; border-radius: 14px; }
-    .jellyfin-head small, .stremio-head small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-    .jellyfin .app-body, .stremio .app-body { gap: 18px; }
+    .jellyfin-head small, .stremio-head small, .custom-head small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .jellyfin .app-body, .stremio .app-body, .custom .app-body { gap: 18px; }
     .jellyfin .field, .stremio .field { margin-top: auto; }
-    .jellyfin .button, .stremio .button { width: 100%; }
+    .custom .field + .field { margin-top: 0; }
+    .custom .field:first-of-type { margin-top: auto; }
+    .jellyfin .button, .stremio .button, .custom .button { width: 100%; }
+    .custom-icon { display: grid; place-items: center; background: var(--line, #e4e6dc); color: var(--muted); }
+    .custom-icon .icon { width: 24px; height: 24px; }
     .help-text { font-size: 11px; color: var(--muted); }
     .install-hint { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 8px; margin-top: 14px; }
     .install-hint .icon { width: 14px; height: 14px; }
@@ -286,6 +290,16 @@
             <button class="button secondary" id="btnInstallJf" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg><span>Install Jellyfin</span></button>
           </div>
         </article>
+        <article class="panel app custom">
+          <div class="app-body">
+            <div class="custom-head"><span class="app-icon custom-icon" id="customPreview" aria-hidden="true"><svg class="icon"><use href="#i-download"/></svg></span><div><h3>Your own shortcut</h3><small>Any web page, with your own name and image</small></div></div>
+            <p class="app-description">Pin any web address to your TV launcher.<br>Installing again with the same name replaces the tile.</p>
+            <div class="field"><label for="cuname">Name</label><input id="cuname" type="text" maxlength="40" spellcheck="false" placeholder="My app" aria-describedby="customError"></div>
+            <div class="field"><label for="cuurl">Web address</label><input id="cuurl" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://…" aria-describedby="customError"></div>
+            <div class="field"><label for="cuimg">Image address · optional</label><input id="cuimg" type="text" inputmode="url" spellcheck="false" placeholder="https://…/icon.png" aria-describedby="customImgHelp customError"><span class="help-text" id="customImgHelp">A square image online (https). The TV downloads it itself, so a file on this computer will not work.</span><span class="field-error" id="customError" hidden></span></div>
+            <button class="button secondary" id="btnInstallCustom" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg><span>Add to my TV</span></button>
+          </div>
+        </article>
       </div>
       <p class="install-hint" id="installHint"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>Connect your TV above to start installing.</p>
     </section>
@@ -355,6 +369,7 @@
       $("btnInstall").disabled = !linked || installBusy || findBusy;
       $("btnInstallStremio").disabled = !linked || installBusy || findBusy;
       $("btnInstallJf").disabled = !linked || installBusy || findBusy;
+      $("btnInstallCustom").disabled = !linked || installBusy || findBusy;
     }
 
     function updatePairControls() {
@@ -554,10 +569,10 @@
 
     async function installApp(app, extra) {
       if (!linked || installBusy) return;
-      const buttons = {nuvio: "btnInstall", stremio: "btnInstallStremio", jellyfin: "btnInstallJf"};
+      const buttons = {nuvio: "btnInstall", stremio: "btnInstallStremio", jellyfin: "btnInstallJf", custom: "btnInstallCustom"};
       const names = {nuvio: "Nuvio", stremio: "Stremio", jellyfin: "Jellyfin"};
       const id = buttons[app];
-      const name = names[app];
+      const name = app === "custom" ? extra.name : names[app];
       installBusy = true;
       busy(id, true, "Installing…");
       updateInstallButtons();
@@ -573,6 +588,8 @@
           $("bannerTitle").textContent = name + " is home.";
           $("bannerText").textContent = app === "stremio"
             ? "Press Home and open Stremio. Sidee can be closed; if you linked a streaming server, keep Stremio Service/Desktop running."
+            : app === "custom"
+            ? "Press Home on your TV and select its tile. Sidee can be closed; the page opens from its web address."
             : "Press Home on your TV and select its tile. You can stop Sidee with Quit Sidee on macOS or Ctrl+C on Windows; Nuvio needs Internet and Jellyfin needs its server.";
           $("banner").hidden = false;
           $("banner").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "nearest"});
@@ -582,12 +599,15 @@
         } else if (result.status === "unconfirmed") {
           log(result.message || "Check Home on your TV before trying the installation again.");
           $("activityCount").textContent = "Check TV";
-        } else if (!handleAuth(result)) log(result.error || "Your TV didn't confirm installation. Try again.", "err");
+        } else if (!handleAuth(result)) {
+          log(result.error || "Your TV didn't confirm installation. Try again.", "err");
+          if (app === "custom" && result.error) { $("customError").textContent = result.error; $("customError").hidden = false; }
+        }
       } catch (error) { log(error.message || "The connection was interrupted. Try installing again.", "err"); }
       finally {
         installBusy = false;
         busy(id, false);
-        if (installed.has(app)) {
+        if (installed.has(app) && app !== "custom") {
           $(id).dataset.label = "Install " + name + " again";
           $(id).querySelector("span").textContent = $(id).dataset.label;
         }
@@ -616,6 +636,32 @@
       installApp("jellyfin", {server});
     };
     $("jfsrv").oninput = () => { $("serverError").hidden = true; $("jfsrv").removeAttribute("aria-invalid"); };
+    $("btnInstallCustom").onclick = () => {
+      const name = $("cuname").value.trim(), url = $("cuurl").value.trim(), image = $("cuimg").value.trim();
+      const missing = !name ? "cuname" : !url ? "cuurl" : null;
+      if (missing) {
+        $("customError").textContent = missing === "cuname" ? "Enter a name for your shortcut." : "Enter the web address the tile should open.";
+        $("customError").hidden = false;
+        $(missing).setAttribute("aria-invalid", "true");
+        $(missing).focus();
+        return;
+      }
+      installApp("custom", {name, url, image});
+    };
+    for (const field of ["cuname", "cuurl", "cuimg"]) {
+      $(field).oninput = () => { $("customError").hidden = true; $(field).removeAttribute("aria-invalid"); };
+      $(field).onkeydown = event => { if (event.key === "Enter" && !$("btnInstallCustom").disabled) $("btnInstallCustom").click(); };
+    }
+    $("cuimg").onchange = () => {
+      const image = $("cuimg").value.trim(), preview = $("customPreview");
+      preview.textContent = "";
+      if (!image.startsWith("https://")) preview.innerHTML = '<svg class="icon"><use href="#i-download"/></svg>';
+      else {
+        const img = document.createElement("img");
+        img.src = image; img.alt = ""; img.className = "app-icon";
+        preview.appendChild(img);
+      }
+    };
     $("jfsrv").onkeydown = event => { if (event.key === "Enter" && !$("btnInstallJf").disabled) $("btnInstallJf").click(); };
 
     function applyStatus(status) {

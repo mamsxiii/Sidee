@@ -178,6 +178,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def _install(self, data: dict) -> dict:
         key = data.get("app", "")
+        if key == "custom":
+            try:
+                p = presets.build_custom(str(data.get("name", "")),
+                                         str(data.get("url", "")),
+                                         str(data.get("image", "")))
+            except ValueError as e:
+                return {"ok": False, "error": str(e)}
+            return self._register(p)
         p = presets.get(key)
         if not p:
             return {"ok": False, "error": "unknown preset"}
@@ -191,6 +199,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif p.get("server_builder") == "stremio":
             p = dict(p)
             p["url"] = presets.build_stremio_url(server)
+        return self._register(p)
+
+    def _register(self, p: dict) -> dict:
         _validate_preset(p)
         s = client.Session.load()
         apps = client.add_tile(s, p["app_id"], p["name"], p["url"],

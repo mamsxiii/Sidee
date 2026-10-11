@@ -84,6 +84,25 @@ class TestTileRegistration(unittest.TestCase):
         self.assertEqual(len(installs), 1)
         return result
 
+    def test_custom_shortcut_installs_its_own_tile(self):
+        url = "https://jellyfin.example.com/web/index.html"
+        self.connection.replies = [[EXISTING, {"appId": "my_jellyfin", "name": "JELLYFIN", "url": url}]]
+        result = self.handler._install({"app": "custom", "name": "JELLYFIN", "url": url,
+                                        "image": "https://example.com/i.png"})
+        self.assertTrue(result["ok"])
+        sent = [json.loads(m) for t, m in self.connection.published if t.endswith("actions/uievent")]
+        self.assertEqual(len(sent), 1)
+        info = sent[0]["app_info"]
+        self.assertEqual((info["Id"], info["Title"], info["URL"], info["Image"]),
+                         ("my_jellyfin", "JELLYFIN", url, "https://example.com/i.png"))
+
+    def test_invalid_custom_shortcut_sends_nothing(self):
+        result = self.handler._install({"app": "custom", "name": "App", "url": "https://a.b",
+                                        "image": "http://a.b/i.png"})
+        self.assertFalse(result["ok"])
+        self.assertIn("https", result["error"])
+        self.assertEqual(self.connection.published, [])
+
     def test_installed_app_confirmed_by_explicit_request_without_automatic_push(self):
         result = self.install()
         self.assertTrue(result["ok"])
