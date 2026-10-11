@@ -33,8 +33,8 @@ PRESETS: dict[str, dict] = {
         "url": "",  # built from the user's server address
         "needs_server": True,
         "server_placeholder": "Your server's IP or URL",
-        # Official Jellyfin logo with the name in capitals, so the tile is recognisable.
-        "image": "https://raw.githubusercontent.com/mamsxiii/Sidee/main/assets/jellyfin-tile-caps.png",
+        # Official Jellyfin logo with the name in bold capitals, so the tile is recognisable.
+        "image": "https://raw.githubusercontent.com/mamsxiii/Sidee/main/assets/jellyfin-tile-bold.png",
         "icon": "assets/jellyfin.png",
         "description": "Your media from your Jellyfin server",
     },
