@@ -18,7 +18,8 @@
 >   the same name replaces the tile.
 >
 > Downloads for this fork are on [its Releases page](https://github.com/mamsxiii/Sidee/releases)
-> (from v0.2.0). The original project's releases do not include these changes.
+> (from v0.2.0), **Windows only**. For macOS, use the original project.
+> The original project's releases do not include these changes.
 
 Install **third-party web apps on Hisense VIDAA TVs** as permanent launcher tiles,
 including **Stremio, Nuvio and Jellyfin**. Sidee is a simple **VIDAA sideload**
