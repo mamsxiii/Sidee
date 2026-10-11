@@ -17,10 +17,8 @@
 >   `https://` address, because the TV downloads it itself). Installing again with
 >   the same name replaces the tile.
 >
-> To use this fork on Windows, download
-> [the fork as a ZIP](https://github.com/mamsxiii/Sidee/archive/refs/heads/main.zip),
-> extract it and double-click `start-windows.bat`. The download links below point to
-> the original project's releases, which do not include these changes.
+> Downloads for this fork are on [its Releases page](https://github.com/mamsxiii/Sidee/releases)
+> (from v0.2.0). The original project's releases do not include these changes.
 
 Install **third-party web apps on Hisense VIDAA TVs** as permanent launcher tiles,
 including **Stremio, Nuvio and Jellyfin**. Sidee is a simple **VIDAA sideload**
@@ -43,7 +41,7 @@ the PIN displayed on
 
 ### Windows
 
-1. [Download Sidee for Windows](https://github.com/Empi9245/Sidee/releases/download/v0.1.2/sidee-windows.zip)
+1. [Download Sidee for Windows](https://github.com/mamsxiii/Sidee/releases/download/v0.2.0/sidee-windows.zip)
    and choose **Extract all**. Open the extracted folder.
 2. Double-click **`start-windows.bat`**.
 3. Wait for your dashboard to open in the browser. Everything else happens there.
@@ -73,12 +71,12 @@ It opens the same browser dashboard as Windows, with a small control window
 containing **Open dashboard** and **Quit Sidee**. No Python installation or
 Terminal window is needed.
 
-1. Open [Build Sidee in GitHub Actions](https://github.com/Empi9245/Sidee/actions/workflows/build.yml)
+1. Open [Build Sidee in GitHub Actions](https://github.com/mamsxiii/Sidee/actions/workflows/build.yml)
    and select a successful run for the commit you want. In **Artifacts**, download
    **Sidee-macOS-arm64** for an Apple Silicon Mac (M-series), or
    **Sidee-macOS-x64** for an Intel Mac. GitHub requires sign-in to download
    workflow artifacts. Each artifact contains a `.dmg` and a `.app.zip`.
-   Published downloads, when available, are on the [Releases page](https://github.com/Empi9245/Sidee/releases).
+   Published downloads, when available, are on the [Releases page](https://github.com/mamsxiii/Sidee/releases).
 2. Extract the artifact ZIP, open `Sidee-macOS-arm64.dmg` or
    `Sidee-macOS-x64.dmg`, and drag **Sidee.app** onto **Applications**.
    Eject the disk image, then open Sidee from Applications.
@@ -167,7 +165,7 @@ macOS packaging uses PyInstaller to bundle the same Python core into a native
 architecture checks, CI smoke tests, and future signing options are in
 [macOS build notes](docs/macos-build.md).
 
-[Build Sidee](https://github.com/Empi9245/Sidee/actions/workflows/build.yml)
+[Build Sidee](https://github.com/mamsxiii/Sidee/actions/workflows/build.yml)
 checks Windows and both macOS architectures and uploads their packages as
 workflow artifacts. A `v*` tag prepares a **draft** GitHub Release containing
 the Windows ZIP and both macOS packages; publishing remains a separate step.
