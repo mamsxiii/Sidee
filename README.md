@@ -2,6 +2,26 @@
 
 # Sidee
 
+> **This is a fork of [Empi9245/Sidee](https://github.com/Empi9245/Sidee)**, by the
+> Sidee contributors (MIT license). All the credit for the tool goes to the original
+> project; please report general issues and support the author there.
+>
+> **Changes in this fork:**
+> - **Official Jellyfin icon on the TV tile.** The original Jellyfin preset used a
+>   GitHub default avatar as the tile image. The tile now shows the official
+>   Jellyfin logo ([jellyfin-ux](https://github.com/jellyfin/jellyfin-ux) branding)
+>   with the name **JELLYFIN** in bold capitals, so it is easy to recognise in the
+>   launcher. The dashboard uses the official icon too.
+> - **"Your own shortcut".** A new card in the dashboard pins any web page to the TV
+>   launcher with your own name, web address and image (the image must be an
+>   `https://` address, because the TV downloads it itself). Installing again with
+>   the same name replaces the tile.
+>
+> To use this fork on Windows, download
+> [the fork as a ZIP](https://github.com/mamsxiii/Sidee/archive/refs/heads/main.zip),
+> extract it and double-click `start-windows.bat`. The download links below point to
+> the original project's releases, which do not include these changes.
+
 Install **third-party web apps on Hisense VIDAA TVs** as permanent launcher tiles,
 including **Stremio, Nuvio and Jellyfin**. Sidee is a simple **VIDAA sideload**
 tool that works with one click from your computer's browser.
